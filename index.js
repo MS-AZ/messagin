@@ -101,7 +101,7 @@ ws.on("connection", async socket => {
         let chatid = name.substring(5);
         socket.join(chatid);
         let messages = await db.get.chats(chatid).messages().catch(()=>{});
-        if (!messages?.length) return callback(null);
+        if (!messages || !messages.length) return callback(null);
         let res = [];
         console.log(messages);
         messages.forEach(async (message, _, a) => {

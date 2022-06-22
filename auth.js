@@ -12,7 +12,7 @@ function validateToken(db) {
             if (id.length != 24) return reject();
             id = Buffer.from(id.split("").reverse().join(""), "base64").toString();
             let user = await db.get.users(id)().catch(reject);
-            if (user?.token == generateHash(token)) resolve(id);
+            if (user && user.token == generateHash(token)) resolve(id);
             else reject();
         });
     }

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messagin'</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div id="contextmenu"></div>
+    <div id="userinfo">
+        <img srcset="/assets/avatar.svg" alt="avatar" id="avatar">
+        <div id="username"></div>
+    </div>
+    <div id="chats">
+            
+    </div>
+    <div id="content">
+        <div id="messages-scroller">
+            <span class="scroll-start"></span>
+        </div>
+        <textarea id="input" rows="1"></textarea>
+    </div>
+    <script type="module" src="./script.js"></script>
+</body>
+</html>

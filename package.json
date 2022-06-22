@@ -1,0 +1,19 @@
+{
+    "name": "messagin",
+    "version": "0.0.1-alpha",
+    "main": "index.js",
+    "author": "M.S",
+    "scripts": {
+        "prestart": "clear",
+        "start": "node -r dotenv/config index.js"
+    },
+    "dependencies": {
+        "cookie-parser": "^1.4.6",
+        "express": "^4.18.1",
+        "helmet": "^5.1.0",
+        "socket.io": "^4.5.1"
+    },
+    "devDependencies": {
+        "dotenv": "^16.0.1"
+    }
+}

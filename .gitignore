@@ -1,0 +1,10 @@
+node_modules/
+pnpm-lock.yaml
+r-public
+r-index.js
+r-database.js
+r2-database.js
+db
+tailwind.config.js
+.env
+public.js

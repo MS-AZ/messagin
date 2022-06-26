@@ -19,8 +19,6 @@ app.use(cookies());
 //     contentSecurityPolicy: false
 // }));
 
-
-
 app.use("/assets", express.static("assets"));
 app.get("/avatars/:id", async (req, res) => {
     let avatar = await db.get.avatars(req.params.id)().catch(()=>{});
@@ -31,7 +29,8 @@ app.get("/avatars/:id", async (req, res) => {
 app.get("/", async (req, res) => {
     let id = await validateToken(req.cookies.access_token).catch(()=>{});
     console.log(id);
-    if (!id) res.sendFile(`${cwd}/public/login.html`);
+    if (!id && db.online) res.sendFile(`${cwd}/public/login.html`);
+    else if (!id) res.sendFile(`${cwd}/public/unavailable.html`);
     else res.sendFile(`${cwd}/public/index.html`);
 });
 app.get("/script.js", (req, res) => {
@@ -99,11 +98,16 @@ ws.on("connection", async socket => {
     socket.onAny(async (name, callback) => {
         if (!name.startsWith("chat-")) return;
         let chatid = name.substring(5);
-        socket.join(chatid);
+        if (!user.chats.includes(chatid)) return callback();
+        socket.rooms.forEach(room => {
+            if (room.startsWith("chat:")) socket.leave(room);
+        });
+        // socket.leave(/chat:\d{18}/);
+        socket.join(`chat:${chatid}`);
+        console.log(socket.rooms);
         let messages = await db.get.chats(chatid).messages().catch(()=>{});
-        if (!messages || !messages.length) return callback(null);
+        if (!messages || !messages.length) return callback();
         let res = [];
-        console.log(messages);
         messages.forEach(async (message, _, a) => {
             let author = await db.get.users(message.author)().catch(()=>{});
             message.author = {
@@ -113,8 +117,10 @@ ws.on("connection", async socket => {
                 color: author.color
             };
             res.push(message);
-            if (res.length == a.length) 
-                callback(res.sort((a, b) => BigInt(a.id) > BigInt(b.id)));
+            if (res.length == a.length)
+                callback(res.sort(
+                    (a, b) => Number(BigInt(a.id)) - Number(BigInt(b.id))
+                ));
         });
     });
 });

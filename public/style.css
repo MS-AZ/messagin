@@ -27,6 +27,49 @@ body {
     height: 100%
 }
 
+.preload.active::after, .preload.active::before {
+    content: "";
+}
+.preload::after, .preload::before {
+    /* opacity: 0; */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid;
+    border-color: rgb(var(--user-color-r, 255),
+            var(--user-color-g, 255), var(--user-color-b, 255)) transparent transparent transparent;
+    animation: rotate 1s infinite linear;
+    transition: opacity 1s;
+}
+.preload::after {
+    width: 3rem;
+    height: 3rem;
+}
+.preload::before {
+    width: 2.5rem;
+    height: 2.5rem;
+    animation-direction: reverse;
+    animation-duration: .75s;
+}
+@keyframes rotate {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@-o-keyframes rotate {
+    0% { -o-transform: translate(-50%, -50%) rotate(0deg); }
+    100% { -o-transform: translate(-50%, -50%) rotate(360deg); }
+}
+@-moz-keyframes rotate {
+    0% { -moz-transform: translate(-50%, -50%) rotate(0deg); }
+    100% { -moz-transform: translate(-50%, -50%) rotate(360deg); }
+}
+@-webkit-keyframes rotate {
+    0% { -webkit-transform: translate(-50%, -50%) rotate(0deg); }
+    100% { -webkit-transform: translate(-50%, -50%) rotate(360deg); }
+}
+
 #userinfo {
     grid-area: userinfo;
     background: #444;
@@ -65,14 +108,17 @@ body {
 .chat:hover {
     padding-left: 1rem;
     background: #383838;
-    border-left-color: var(--user-color, #fff);
+    border-left-color: rgb(var(--user-color-r, 255),
+        var(--user-color-g, 255), var(--user-color-b, 255));
 }
 .chat.active {
     padding-left: 1rem;
     background: #333;
-    border-left-color: var(--user-color, #fff);
+    border-left-color: rgb(var(--user-color-r, 255),
+        var(--user-color-g, 255), var(--user-color-b, 255));
 }
 #content {
+    position: relative;
     display: grid;
     grid-template-rows: 1fr auto;
     grid-template-areas: "messages" "input";
@@ -87,11 +133,15 @@ body {
     column-gap: .5rem;
     margin: 1rem 0;
 }
-#messages-scroller {
+#messages-wrapper {
+    grid-area: messages;
+    height: 100%;
     overflow: auto;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
+    flex-direction: column-reverse;
+}
+#messages-scroller {
+    position: relative;
 }
 .scroll-start {
     flex: 1 1 0%;

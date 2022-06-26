@@ -1,6 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 
+const io = require("socket.io")
+
 function nop() {}
 
 class Database {
@@ -21,6 +23,9 @@ class Database {
             Internal: () => Error(`an internal server error happened`),
             ProxyErr: () => Error(`proxy database should have one parameter inside function call`)
         }
+    }
+    get online() {
+        return !this.ws || !this.ws.disconnected
     }
     setRemote(ws) {
         this.ws = ws;

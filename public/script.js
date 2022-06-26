@@ -19,9 +19,14 @@ socket.on("connect", () => {
 socket.on("disconnect", () => {
     console.log("socket disconnected");
 });
+
 socket.on("userinfo", data => {
     user = data;
-    document.body.setAttribute("style", `--user-color: ${formatColor(data.color)}`);
+    document.body.setAttribute("style", `--user-color-r: ${
+        (data.color & 0xff0000) >> 0x10
+    }; --user-color-g: ${
+        (data.color & 0xff00) >> 0x8
+    }; --user-color-b: ${data.color & 0xff};`);
     console.log(data);
     username.innerHTML = data.username;
     useravatar.src = `/avatars/${user.avatar}`;
@@ -46,7 +51,7 @@ socket.on("userinfo", data => {
 socket.on("message", (chat, message) => {
     if (chat != currentchat) return;
     loadMessage(message);
-})
+});
 
 function loadChat(chatid) {
     if (chatid == currentchat) return;
@@ -104,9 +109,11 @@ function loadMessage(data) {
     return;
 }
 
-function formatColor(color) {
-    let colorstr = color.toString(16);
-    return "#" + "0".repeat(6-colorstr.length) + colorstr;
+function formatColor(color, alpha) {
+    let r = (color & 0xff0000) >> 0x10;
+    let g = (color & 0xff00) >> 0x8;
+    let b = (color & 0xff);
+    return `rgb(${r}, ${g}, ${b}${alpha ? ", "+alpha : ""})`;
 }
 
 
@@ -131,10 +138,11 @@ oncontextmenu = (e) => {
         label: "Copy chat ID",
         action: () => copyToClipboard(e.target.getAttribute("data-id"))
     });
-    setContext(context);
-    contextmenu.style.display = "block";
-    contextmenu.style.left = e.pageX + "px";
-    contextmenu.style.top = e.pageY + "px";
+    if (setContext(context)) {
+        contextmenu.style.display = "block";
+        contextmenu.style.left = e.pageX + "px";
+        contextmenu.style.top = e.pageY + "px";
+    };
 }
 onclick = destroyContext;
 
@@ -162,6 +170,7 @@ function setContext(context) {
         let span = document.createElement("span");
         span.innerHTML = "(empty)";
         contextmenu.appendChild(span);
+        return false;
     } else {
         context.forEach(el => {
             let div = document.createElement("div");
@@ -172,6 +181,7 @@ function setContext(context) {
             };
             contextmenu.appendChild(div);
         });
+        return true;
     }
 }
 function destroyContext(e) {
@@ -191,6 +201,10 @@ input.addEventListener("keydown", e => {
     if (e.key == "Enter" && !e.shiftKey && input.value.trim()) {
         send(input.value);
         input.value = "";
+    } else if (e.key == "`") {
+        let result = wrap("`", input.value, sel.start, sel.end);
+        input.value = result.text;
+        input.setSelectionRange(result.start, result.end);
     } else if (e.key == "i" && e.ctrlKey) {
         let result = wrap("*", input.value, sel.start, sel.end);
         input.value = result.text;
@@ -221,6 +235,13 @@ function send(message) {
 function wrap(decorator, text, start, end) {
     let newend = end;
     let selection = text.substring(start, end);
+    let dec = decorator.split("").map(x => "\\"+x).join("");
+    let regex = new RegExp(`${dec}.+${dec}`);
+    console.log(regex.test(selection));
+    if (regex.test(selection)) {
+
+    }
+    console.log(regex);
     if (selection.startsWith(decorator) && selection.endsWith(decorator)) {
         selection = selection.substring(decorator.length, selection.length - decorator.length);
         newend -= decorator.length*2
